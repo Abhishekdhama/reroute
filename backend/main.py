@@ -6,6 +6,11 @@ from risk_engine import assess_project
 app = FastAPI(title="Reroute API", version="0.1.0")
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {"message": "Reroute API is running", "docs": "/docs", "health": "/health"}
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
