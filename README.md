@@ -9,7 +9,7 @@ Reroute is an AI delivery-rescue agent for project leads. It analyzes task statu
 | Area | Owner |
 | --- | --- |
 | `backend/risk_engine.py` and dependency analysis | Team lead |
-| Backend API, agent workflow, integration | Codex + team lead |
+| Backend API, agent workflow, integration | team lead |
 | `frontend/` UI and graph experience | Ishank |
 | `backend/csv_import.py`, models, seed data | Kanchan |
 | `docs/`, QA, presentation, video | Muskan |
