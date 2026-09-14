@@ -54,3 +54,23 @@ class ProjectRisk(BaseModel):
     release_health: str
     summary: str
     at_risk_tasks: list[TaskRisk]
+
+
+class UnblockReply(BaseModel):
+    """A structured response to Reroute's unblock question.
+
+    The UI can collect these fields from a person or present a simulated response
+    during the hackathon demo.
+    """
+
+    task_id: str
+    new_status: TaskStatus
+    revised_due_date: date | None = None
+    progress: int | None = Field(default=None, ge=0, le=100)
+    update: str = Field(min_length=1, max_length=2_000)
+    responded_at: datetime
+
+
+class Reassessment(BaseModel):
+    project: Project
+    risk: ProjectRisk
