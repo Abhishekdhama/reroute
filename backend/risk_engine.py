@@ -46,6 +46,26 @@ def _question_for(task: Task, radius: list[str]) -> str | None:
     )
 
 
+def _intervention_for(task: Task, radius: list[str], days_to_due: int) -> str:
+    """Recommend an action a project lead can take today, not a vague warning."""
+    impact = f" to protect {len(radius)} dependent task(s)" if radius else ""
+    if task.status == TaskStatus.BLOCKED:
+        return (
+            f"Assign a same-day unblock owner for “{task.title}” and confirm a revised ETA"
+            f"{impact}."
+        )
+    if days_to_due < 0:
+        return (
+            f"Escalate “{task.title}” today; either add support or move its dependent work"
+            f" to a safe alternative path{impact}."
+        )
+    if task.status == TaskStatus.TODO and days_to_due <= 2:
+        return f"Start “{task.title}” today or explicitly reassign it{impact}."
+    if task.progress < 40 and days_to_due <= 3:
+        return f"Split “{task.title}” into a shippable minimum and defer nonessential scope{impact}."
+    return f"Request a concrete status update and ETA for “{task.title}” today{impact}."
+
+
 def score_task(task: Task, graph: nx.DiGraph, today: date, now: datetime) -> TaskRisk:
     score = 0
     factors: list[str] = []
@@ -93,6 +113,7 @@ def score_task(task: Task, graph: nx.DiGraph, today: date, now: datetime) -> Tas
         factors=factors,
         downstream_task_ids=radius,
         suggested_question=_question_for(task, radius),
+        recommended_intervention=_intervention_for(task, radius, days_to_due),
     )
 
 

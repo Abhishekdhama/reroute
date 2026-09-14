@@ -46,6 +46,7 @@ class TaskRisk(BaseModel):
     factors: list[str]
     downstream_task_ids: list[str]
     suggested_question: str | None = None
+    recommended_intervention: str
 
 
 class ProjectRisk(BaseModel):
