@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, HTTPException
 
 from models import Project, ProjectRisk, Reassessment, UnblockReply
 from risk_engine import assess_project
@@ -19,6 +19,30 @@ def health() -> dict[str, str]:
 @app.post("/api/projects/assess", response_model=ProjectRisk)
 def assess(project: Project) -> ProjectRisk:
     """Analyze a project's task data and return transparent delivery risks."""
+    return assess_project(project)
+
+
+@app.post("/api/projects/upload", response_model=ProjectRisk)
+def upload_csv(file: UploadFile = File(...)) -> ProjectRisk:
+    """Parse a CSV file and immediately assess the resulting project."""
+    import io
+    from csv_import import import_tasks
+    
+    content = file.file.read().decode("utf-8")
+    result = import_tasks(io.StringIO(content))
+    
+    if not result.tasks:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"No valid tasks found in CSV. Errors: {result.errors}"
+        )
+    
+    project = Project(
+        project_id="imported-project",
+        name=file.filename or "Imported Project",
+        release_date=result.tasks[0].due_date, # Fallback, ideally from UI
+        tasks=result.tasks
+    )
     return assess_project(project)
 
 
