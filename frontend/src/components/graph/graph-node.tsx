@@ -49,7 +49,7 @@ export function GraphNode({
           "flex flex-col justify-center gap-1.5 overflow-hidden rounded-md border px-2.5 text-left transition-colors duration-150",
           EMPHASIS_CLASS[emphasis],
           hovered && emphasis !== "muted" && "border-ink-faint/60",
-          task.onCriticalPath && emphasis !== "muted" && "shadow-[inset_2px_0_0_0_var(--color-line-strong)]",
+          task.onCriticalPath && emphasis !== "muted" && "border-l-2 border-l-ink-faint pl-[9px]",
         )}
       >
         <span className="flex items-center gap-1.5">

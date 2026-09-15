@@ -38,7 +38,7 @@ export function RiskRow({
       ) : null}
 
       <span className="mt-0.5 flex w-10 shrink-0 flex-col items-end gap-1">
-        <span className={cn("tnum text-title font-semibold leading-none", TONE_TEXT[tone])}>
+        <span className={cn("tnum text-body font-semibold leading-none", TONE_TEXT[tone])}>
           {task.score}
         </span>
         <span className="h-0.5 w-full overflow-hidden rounded-full bg-line">

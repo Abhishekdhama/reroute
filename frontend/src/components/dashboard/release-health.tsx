@@ -34,7 +34,7 @@ export function ReleaseHealth({
   return (
     <Panel className="p-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="order-2 min-w-0 flex-1 md:order-1">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className={cn("h-2 w-2 shrink-0 rounded-full", TONE_BG[tone])} aria-hidden="true" />
             <span className={cn("text-meta font-semibold uppercase tracking-[0.07em]", TONE_TEXT[tone])}>
@@ -53,10 +53,11 @@ export function ReleaseHealth({
           <p className="mt-1.5 text-meta text-ink-muted">{normalizeCounts(risk.summary)}</p>
         </div>
 
-        <div className="order-1 flex shrink-0 items-start justify-between gap-4 md:order-2">
+        <div className="flex shrink-0 items-start justify-between gap-4">
           <div className="md:text-right">
-            <p className={cn("tnum text-[28px] font-semibold leading-none", TONE_TEXT[tone])}>
+            <p className={cn("tnum text-title font-semibold leading-none", TONE_TEXT[tone])}>
               {risk.release_risk_score}
+              <span className="text-micro font-normal text-ink-faint">/100</span>
             </p>
             <p className="mt-1 text-micro text-ink-faint">Release risk</p>
           </div>

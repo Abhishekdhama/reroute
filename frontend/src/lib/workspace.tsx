@@ -9,7 +9,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ApiError, assessProject, reassessAfterReply } from "@/lib/api";
+import { ApiError, assessProject, reassessAfterReply, uploadProjectCsv } from "@/lib/api";
+import { CsvParseError, parseProjectCsv } from "@/lib/csv";
 import { bandForScore, deriveWorkspace, type Workspace } from "@/lib/derive";
 import { buildSeedProject } from "@/lib/seed";
 import type { Project, ProjectRisk, ReleaseHealth, RiskBand, UnblockReply } from "@/types/reroute";
@@ -46,11 +47,13 @@ interface WorkspaceContextValue {
   selectedTaskId: string | null;
   isAssessing: boolean;
   isReassessing: boolean;
+  isUploading: boolean;
   lastAssessedAt: string | null;
   selectTask: (taskId: string | null) => void;
   refresh: () => void;
   reset: () => void;
   submitReply: (reply: UnblockReply) => Promise<ReassessmentEvent>;
+  uploadCsv: (file: File) => Promise<{ projectName: string; taskCount: number }>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
@@ -79,6 +82,12 @@ function toError(cause: unknown): AssessmentError {
   return { message: "The assessment request failed.", endpoint: null };
 }
 
+function toUploadMessage(cause: unknown): string {
+  if (cause instanceof CsvParseError) return cause.message;
+  if (cause instanceof ApiError) return cause.message;
+  return "The file could not be uploaded.";
+}
+
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [initialProject] = useState(buildSeedProject);
   const [project, setProject] = useState<Project>(initialProject);
@@ -86,6 +95,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<AssessmentError | null>(null);
   const [isAssessing, setIsAssessing] = useState(true);
   const [isReassessing, setIsReassessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [history, setHistory] = useState<ReassessmentEvent[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [lastAssessedAt, setLastAssessedAt] = useState<string | null>(null);
@@ -132,6 +142,34 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     void assess(fresh);
   }, [assess]);
 
+  const uploadCsv = useCallback(async (file: File) => {
+    // Parsed client-side for display only; the backend's assessment below is what
+    // actually decides the numbers. If the file doesn't even parse, don't spend a
+    // request on it.
+    let parsed: Project;
+    try {
+      parsed = parseProjectCsv(await file.text(), file.name);
+    } catch (cause) {
+      throw new Error(toUploadMessage(cause));
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await uploadProjectCsv(file);
+      setProject(parsed);
+      setRisk(result);
+      setHistory([]);
+      setSelectedTaskId(null);
+      setError(null);
+      setLastAssessedAt(new Date().toISOString());
+      return { projectName: parsed.name, taskCount: parsed.tasks.length };
+    } catch (cause) {
+      throw new Error(toUploadMessage(cause));
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
+
   const submitReply = useCallback(
     async (reply: UnblockReply) => {
       if (!risk) throw new ApiError("No assessment is loaded yet.", 0);
@@ -172,11 +210,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       selectedTaskId,
       isAssessing,
       isReassessing,
+      isUploading,
       lastAssessedAt,
       selectTask: setSelectedTaskId,
       refresh,
       reset,
       submitReply,
+      uploadCsv,
     }),
     [
       status,
@@ -186,10 +226,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       selectedTaskId,
       isAssessing,
       isReassessing,
+      isUploading,
       lastAssessedAt,
       refresh,
       reset,
       submitReply,
+      uploadCsv,
     ],
   );
 

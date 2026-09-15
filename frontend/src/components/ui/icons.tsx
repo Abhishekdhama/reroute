@@ -152,6 +152,14 @@ export const SendIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const UploadIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8 10.5V3" />
+    <path d="M4.8 6.2 8 3l3.2 3.2" />
+    <path d="M3 11v1.5A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5V11" />
+  </Icon>
+);
+
 export const RerouteIcon = (p: IconProps) => (
   <Icon {...p}>
     <circle cx="3.2" cy="12.8" r="1.5" />
