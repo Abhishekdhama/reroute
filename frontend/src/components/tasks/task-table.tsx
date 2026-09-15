@@ -74,7 +74,7 @@ export function TaskTable({
                   <button
                     type="button"
                     onClick={() => onSort(column.key as TaskSortKey)}
-                    className="inline-flex items-center gap-1 rounded transition-colors hover:text-ink-muted"
+                    className="inline-flex items-center gap-1 rounded uppercase tracking-[0.07em] transition-colors hover:text-ink-muted"
                   >
                     {column.label}
                     {column.key === sortKey ? (

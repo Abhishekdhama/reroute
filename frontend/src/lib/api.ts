@@ -60,6 +60,29 @@ export function assessProject(project: Project, signal?: AbortSignal): Promise<P
   return post<ProjectRisk>("/api/assess", project, signal);
 }
 
+export async function uploadProjectCsv(file: File, signal?: AbortSignal): Promise<ProjectRisk> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  let response: Response;
+  try {
+    response = await fetch("/api/upload", { method: "POST", body: formData, signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new ApiError("Could not reach the Reroute API.", 0);
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      readDetail(payload) ?? `Upload failed (${response.status}).`,
+      response.status,
+      describeEndpoint(payload),
+    );
+  }
+  return payload as ProjectRisk;
+}
+
 export function reassessAfterReply(
   project: Project,
   reply: UnblockReply,

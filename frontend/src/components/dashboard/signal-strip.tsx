@@ -33,7 +33,7 @@ export function SignalStrip({ signals }: { signals: ProjectSignals }) {
       label: "Due ≤ 7 days",
       value: signals.dueThisWeek,
       detail: "Open tasks due within the next week",
-      tone: "watch",
+      tone: signals.dueThisWeek > 0 ? "watch" : "neutral",
     },
     {
       label: "Widest blast radius",
@@ -42,7 +42,7 @@ export function SignalStrip({ signals }: { signals: ProjectSignals }) {
       tone: signals.largestBlastRadius > 0 ? "atrisk" : "neutral",
     },
     {
-      label: "Critical path",
+      label: "Critical path at risk",
       value: `${signals.criticalPathAtRisk}/${signals.criticalPathLength}`,
       detail: "At-risk tasks on the longest dependency chain",
       tone: signals.criticalPathAtRisk > 0 ? "atrisk" : "neutral",

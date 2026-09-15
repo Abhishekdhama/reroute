@@ -51,7 +51,7 @@ export function TaskDetail({
           </div>
           {task.risk ? (
             <div className="shrink-0 text-right">
-              <p className={cn("tnum text-[22px] font-semibold leading-none", TONE_TEXT[tone])}>
+              <p className={cn("tnum text-title font-semibold leading-none", TONE_TEXT[tone])}>
                 {task.score}
               </p>
               <p className={cn("mt-1 text-micro font-medium", TONE_TEXT[tone])}>{BAND_LABEL[task.band]}</p>
@@ -165,11 +165,13 @@ export function TaskDetail({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-2 border-t border-line pt-4">
-        <Button size="sm" onClick={() => setReassessOpen(true)}>
-          Record update &amp; reassess
-        </Button>
-      </div>
+      {!task.risk ? (
+        <div className="flex flex-wrap gap-2 border-t border-line pt-4">
+          <Button size="sm" onClick={() => setReassessOpen(true)}>
+            Record update &amp; reassess
+          </Button>
+        </div>
+      ) : null}
 
       <ReassessDialog task={task} open={reassessOpen} onClose={() => setReassessOpen(false)} />
     </div>

@@ -12,8 +12,12 @@ import type { Workspace } from "@/lib/derive";
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 1.8;
 /** Fitting a long chain to the viewport can shrink labels past readability. */
-const MIN_FIT_SCALE = 0.75;
-const MIN_FIT_SCALE_NARROW = 0.6;
+const MIN_FIT_SCALE = 0.62;
+const MIN_FIT_SCALE_NARROW = 0.5;
+/** Breathing room so a fitted graph starts just under the legend, not centered
+ *  in whatever vertical space happens to be left. */
+const TOP_ANCHOR = 24;
+const EDGE_MARGIN = 20;
 
 interface Viewport {
   scale: number;
@@ -58,15 +62,19 @@ export function DependencyGraph({
     const { clientWidth, clientHeight } = container;
     if (clientWidth === 0 || clientHeight === 0) return;
     const floor = clientWidth < 640 ? MIN_FIT_SCALE_NARROW : MIN_FIT_SCALE;
-    const scale = Math.max(
-      floor,
-      Math.min(1.1, clientWidth / layout.width, clientHeight / layout.height),
-    );
-    const overflowX = layout.width * scale > clientWidth;
+    // Prefer a scale that fits both dimensions with nothing cropped. Only fall
+    // back to the readability floor (and accept panning) when the graph is
+    // genuinely too big to fit at a legible size.
+    const naturalScale = Math.min(1.1, clientWidth / layout.width, clientHeight / layout.height);
+    const scale = Math.max(floor, naturalScale);
+    const overflowX = layout.width * scale > clientWidth - EDGE_MARGIN * 2;
+    // Anchored near the top rather than centered: a short, wide graph should sit
+    // just under the legend with room to pan below it, not float in the middle
+    // of an otherwise empty canvas.
     setViewport({
       scale,
-      x: overflowX ? 0 : (clientWidth - layout.width * scale) / 2,
-      y: (clientHeight - layout.height * scale) / 2,
+      x: overflowX ? EDGE_MARGIN : (clientWidth - layout.width * scale) / 2,
+      y: TOP_ANCHOR,
     });
   }, [layout]);
 
@@ -162,6 +170,16 @@ export function DependencyGraph({
     return "muted";
   };
 
+  // A permanent, functional edge fade so a node that ends up flush against the
+  // pane boundary (from the initial fit or from panning) reads as "canvas
+  // continues here" rather than as a clipped/broken card.
+  const edgeFadeStyle = {
+    maskImage:
+      "linear-gradient(to right, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)",
+    WebkitMaskImage:
+      "linear-gradient(to right, transparent 0, black 28px, black calc(100% - 28px), transparent 100%)",
+  };
+
   return (
     <div className={cn("relative h-full w-full overflow-hidden bg-base", className)}>
       <div
@@ -201,7 +219,7 @@ export function DependencyGraph({
         }}
         style={{ cursor: panning ? "grabbing" : "grab" }}
       >
-        <svg width="100%" height="100%" role="presentation">
+        <svg width="100%" height="100%" role="presentation" style={edgeFadeStyle}>
           <rect data-graph-surface width="100%" height="100%" fill="transparent" onClick={() => onSelect(null)} />
           <g transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.scale})`}>
             <g fill="none">
@@ -273,6 +291,9 @@ export function DependencyGraph({
 
       <p className="pointer-events-none absolute bottom-3 left-3 hidden pr-14 text-micro text-ink-faint sm:block">
         Drag to pan · ⌘ + scroll to zoom · click a task to trace its blast radius
+      </p>
+      <p className="pointer-events-none absolute bottom-3 left-3 pr-14 text-micro text-ink-faint sm:hidden">
+        Drag to pan · pinch to zoom
       </p>
     </div>
   );

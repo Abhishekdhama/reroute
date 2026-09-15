@@ -34,7 +34,7 @@ export function GraphLegend({ className }: { className?: string }) {
         ))}
       </LegendGroup>
       <span className="hidden items-center gap-1.5 text-micro text-ink-muted sm:flex">
-        <span className="h-3 w-0.5 rounded-full bg-line-strong" aria-hidden="true" />
+        <span className="h-3 w-0.5 rounded-full bg-ink-faint" aria-hidden="true" />
         Critical path
       </span>
     </div>
