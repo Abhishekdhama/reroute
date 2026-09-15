@@ -1,0 +1,15 @@
+task_id,title,owner,status,priority,due_in_days,progress,dependencies,latest_update,updated_hours_ago
+PAY-101,Payments data model migration,Daniel Okafor,done,high,-6,100,,Migration shipped to production. Backfill verified against settlement exports.,132
+PAY-104,Payment service API,Priya Raghavan,blocked,critical,-1,55,PAY-101,"Refund webhooks cannot be verified until the provider issues sandbox credentials. Ticket raised with their support team, no ETA yet.",74
+PAY-118,Checkout UI,Mei Lin Chen,in_progress,high,2,45,PAY-104,Card and wallet flows are built. Refund states are stubbed pending the API contract.,20
+PAY-121,Refund flow,Arjun Mehta,todo,high,4,0,PAY-104,Not started. Waiting on the refund webhook contract.,20
+PAY-126,Billing dashboard,Sofia Alvarez,in_progress,medium,5,30,PAY-118,Invoice table and filters are in review. Charts blocked on checkout events.,28
+AUTH-212,Authentication service upgrade,Tomas Weber,in_progress,critical,2,70,,Token rotation is deployed to staging. Load test scheduled for tomorrow morning.,9
+AUTH-219,Session migration,Priya Raghavan,todo,high,3,10,AUTH-212,Runbook drafted. Cutover window still needs sign-off from support.,52
+RISK-308,Fraud rules engine,Ines Costa,blocked,high,4,25,PAY-104,Rule thresholds need risk-team sign-off before we can score live transactions.,46
+DATA-402,Analytics pipeline,Daniel Okafor,in_progress,medium,6,40,PAY-118,Checkout event schema agreed. Backfill job is running against the staging warehouse.,14
+DATA-408,Merchant settlement report,Sofia Alvarez,todo,medium,8,0,DATA-402,Report spec approved by finance. Build starts once pipeline events land.,36
+PAY-133,Payment provider failover,Tomas Weber,todo,high,7,0,PAY-104,Secondary provider account is ready. Routing work not started.,40
+GOV-501,Compliance audit trail,Ines Costa,in_progress,medium,9,20,PAY-101,Event taxonomy drafted with legal. Retention policy under review.,30
+REL-600,Release validation,Kenji Watanabe,todo,critical,10,0,PAY-121;AUTH-219;RISK-308;DATA-402,Test plan drafted. Environment reserved for the validation window.,18
+REL-604,Customer comms and rollout plan,Mei Lin Chen,todo,low,11,0,REL-600,Draft announcement written. Waiting on a confirmed rollout date.,22
